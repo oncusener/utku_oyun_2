@@ -10,7 +10,7 @@
     "test": "node --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit",
     "web": "expo start --web --go --port 8081",
-    "web:setup": "cp node_modules/canvaskit-wasm/bin/full/canvaskit.wasm public/canvaskit.wasm",
+    "web:setup": "mkdir -p public && cp node_modules/canvaskit-wasm/bin/full/canvaskit.wasm public/canvaskit.wasm",
     "dev": "expo start --go --port 8081",
     "lint": "eslint .",
     "format": "prettier --write .",
