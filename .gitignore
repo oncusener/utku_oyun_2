@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+dist/
+.halka-bundle-check/
+*.log
+.DS_Store
+ios/
+android/
+public/canvaskit.wasm
+.env
+.env.local
