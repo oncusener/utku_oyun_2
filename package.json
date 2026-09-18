@@ -1,5 +1,5 @@
 {
-  "name": "halka",
+  "name": "halo",
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
@@ -34,6 +34,7 @@
     "expo-localization": "~16.1.6",
     "expo-status-bar": "~2.2.3",
     "expo-system-ui": "~5.0.11",
+    "expo-tracking-transparency": "~5.2.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.6",

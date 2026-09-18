@@ -19,8 +19,8 @@ const TEST_APP_ID_IOS = 'ca-app-pub-3940256099942544~1458002511';
 const env = (key: string, fallback: string): string => process.env[key] || fallback;
 
 const config: ExpoConfig = {
-  name: 'Halka',
-  slug: 'halka',
+  name: 'Halo',
+  slug: 'halo',
   version: '0.1.0',
   orientation: 'portrait',
   userInterfaceStyle: 'dark',
@@ -32,10 +32,10 @@ const config: ExpoConfig = {
   },
   ios: {
     supportsTablet: false,
-    bundleIdentifier: 'com.halka.ring',
+    bundleIdentifier: 'com.halo.ring',
   },
   android: {
-    package: 'com.halka.ring',
+    package: 'com.halo.ring',
     adaptiveIcon: { backgroundColor: '#0B0E13' },
     // Explicit rather than defaulted: from targetSdk 36 edge-to-edge can no
     // longer be turned off, and the game already draws full-bleed behind a
@@ -66,6 +66,17 @@ const config: ExpoConfig = {
         // and serves ads either way, which is exactly why this is easy to ship
         // without noticing.
         skAdNetworkItems: ['cstr6suwn9.skadnetwork'],
+      },
+    ],
+    [
+      // App Tracking Transparency. The consent flow in src/ads/consent.ts asks
+      // for ATT on iOS; this sets the NSUserTrackingUsageDescription string the
+      // system prompt shows. Without it the prompt cannot appear, so iOS
+      // personalisation stays permanently off — attribution lost, not correctness.
+      'expo-tracking-transparency',
+      {
+        userTrackingPermission:
+          'This identifier will be used to deliver personalized ads to you.',
       },
     ],
   ],

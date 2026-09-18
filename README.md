@@ -1,4 +1,4 @@
-# Halka
+# Halo
 
 A one-thumb ring puzzle. Six slots, three colours, one piece at a time.
 
@@ -56,7 +56,7 @@ has to be asked for by name.
 The shared helper one directory up does the same thing:
 
 ```bash
-../emu.sh start && ../emu.sh expo halka
+../emu.sh start && ../emu.sh expo halo
 ```
 
 Expo Go must match the project's SDK, and the store version tracks the newest
@@ -144,6 +144,7 @@ src/
     policy.ts              when an ad is allowed to interrupt — pure
     adUnits.ts             which unit id, test or live
     native.ts              resolve the SDK, or decide it isn't there
+    consent.ts             UMP + iOS ATT — off unless the user agrees
     policy.test.ts
 assets/audio/            six generated tones
 tools/
@@ -239,8 +240,20 @@ is right almost always; the toggle covers the rest and lasts the session.
 An interstitial on a cadence, and an optional rewarded interstitial that clears
 the ring and lets a run continue.
 
+**Consent comes before the first ad request, not after.** `consent.ts` runs
+Google's UMP form and then, on iOS, the App Tracking Transparency prompt — in
+that order, because that is the order Google requires. Personalisation is asked
+for only when both say yes; miss either one and every request carries
+`requestNonPersonalizedAdsOnly`, which is also what you get if the whole flow
+throws. `initAds` awaits it before it initialises the SDK or preloads anything,
+so there is no window where an ad could be requested ahead of consent — and the
+gate is that await, not a flag the UI reads, because Halo has no ad UI to gate.
+Like the rest of the layer it is safe in Expo Go: it is only entered once a real
+native module has resolved, which never happens there. This mirrors orbeat and
+zenly; unlike zenly it carries no store, since nothing renders off the result.
+
 `policy.ts` is the part worth reading, and it is deliberately pure so it can be
-tested. Halka is meant to be played standing on a subway and put down without a
+tested. Halo is meant to be played standing on a subway and put down without a
 thought, so the rules protect that: never during the opening sessions, then at
 most one interstitial every few games, and never twice inside a two-minute
 cooldown however many games are lost in between. A test plays out forty
@@ -303,6 +316,12 @@ does not exist. Treat iOS as unverified beyond configuration.
 What was checked, by prebuilding and reading the generated `Info.plist`:
 `GADApplicationIdentifier` is injected correctly, which is the entry whose
 absence crashes the Google SDK on launch.
+
+The consent flow adds one more iOS-only dependency: `NSUserTrackingUsageDescription`,
+without which the ATT prompt cannot appear and iOS personalisation stays off.
+It is set by the `expo-tracking-transparency` plugin and confirmed in the
+resolved `expo config`; it has **not** been read back out of a prebuilt
+`Info.plist` here, for the same missing-Xcode reason.
 
 One gap is left deliberately open. `SKAdNetworkItems` lists only Google's own
 identifier. iOS 14+ attributes installs through SKAdNetwork and a network absent

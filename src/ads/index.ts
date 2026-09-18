@@ -17,6 +17,7 @@ import {
   rewardedInterstitialUnitId,
   servingLiveAds,
 } from './adUnits.ts';
+import { resolveConsent, showPrivacyOptions } from './consent.ts';
 import { loadAdsNative } from './native.ts';
 import {
   chooseAdMoment,
@@ -31,6 +32,11 @@ type Status = 'idle' | 'initialising' | 'ready' | 'unavailable';
 let status: Status = 'idle';
 let policy: PolicyState = newPolicyState();
 
+/** Whether personalised ads may be requested. Decided once by the consent flow
+ *  in initAds(); false until then, and whenever consent is denied or absent. */
+let personalizedAds = false;
+let canShowPrivacyOptions = false;
+
 /** Preloaded ad objects, or null while unloaded. Typed loosely: the SDK's own
  *  types are only available when the native module resolved. */
 let interstitial: any = null;
@@ -43,6 +49,19 @@ export function adsAvailable(): boolean {
 export function adsServingLive(): boolean {
   return servingLiveAds();
 }
+
+/** True when the consent flow permitted personalised ad requests. */
+export function personalizedAdsAllowed(): boolean {
+  return personalizedAds;
+}
+
+/** True when a "privacy options" entry point should be offered (EEA users);
+ *  wire showPrivacyOptions() to it. */
+export function privacyOptionsAvailable(): boolean {
+  return canShowPrivacyOptions;
+}
+
+export { showPrivacyOptions };
 
 /**
  * Bring the SDK up. Resolves false — without throwing — when there is nothing
@@ -60,6 +79,14 @@ export async function initAds(): Promise<boolean> {
 
   status = 'initialising';
   try {
+    // Gather consent (UMP, then iOS ATT) before any ad is requested — that
+    // order is required by Google. A failure here is never fatal: resolveConsent
+    // falls back to non-personalised ads, which is what the rest of this layer
+    // already assumes.
+    const consent = await resolveConsent(native);
+    personalizedAds = consent.personalizedAds;
+    canShowPrivacyOptions = consent.canShowPrivacyOptions;
+
     await native.default().setRequestConfiguration({
       maxAdContentRating: native.MaxAdContentRating.G,
       tagForChildDirectedTreatment: false,
@@ -82,7 +109,7 @@ function preloadInterstitial(): void {
 
   try {
     const ad = native.InterstitialAd.createForAdRequest(interstitialUnitId(), {
-      requestNonPersonalizedAdsOnly: true,
+      requestNonPersonalizedAdsOnly: !personalizedAds,
     });
     ad.addAdEventListener(native.AdEventType.ERROR, () => {
       interstitial = null;
@@ -105,7 +132,7 @@ function preloadRewarded(): void {
   try {
     const ad = native.RewardedInterstitialAd.createForAdRequest(
       rewardedInterstitialUnitId(),
-      { requestNonPersonalizedAdsOnly: true },
+      { requestNonPersonalizedAdsOnly: !personalizedAds },
     );
     ad.addAdEventListener(native.AdEventType.ERROR, () => {
       rewarded = null;
@@ -203,6 +230,8 @@ export async function showRewardedInterstitial(): Promise<boolean> {
 export function resetAdsForTest(): void {
   status = 'idle';
   policy = newPolicyState();
+  personalizedAds = false;
+  canShowPrivacyOptions = false;
   interstitial = null;
   rewarded = null;
 }

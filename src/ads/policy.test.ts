@@ -1,7 +1,7 @@
 /**
  * policy.test.ts — the interruption rules.
  *
- * These are the rules that decide whether Halka stays the thing it is meant to
+ * These are the rules that decide whether Halo stays the thing it is meant to
  * be, so they are tested rather than trusted.
  */
 

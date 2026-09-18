@@ -1,7 +1,7 @@
 /**
  * policy.ts — when an ad is allowed to interrupt.
  *
- * This is a design document that happens to compile. Halka is meant to be
+ * This is a design document that happens to compile. Halo is meant to be
  * played standing on a subway and put down without a thought, so an ad that
  * fires on the first game over, or on every game over, would break the one
  * thing the game is for. The rules:
