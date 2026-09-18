@@ -89,7 +89,7 @@ const config: ExpoConfig = {
       rewardedInterstitialAndroid: process.env.ADMOB_REWARDED_ANDROID,
       rewardedInterstitialIos: process.env.ADMOB_REWARDED_IOS,
     },
-    eas: { projectId: process.env.EAS_PROJECT_ID },
+    eas: { projectId: process.env.EAS_PROJECT_ID ?? 'da15ab0c-4071-42ac-a604-224f159aea3e' },
   },
 };
 
