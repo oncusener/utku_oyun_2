@@ -22,6 +22,7 @@ const config: ExpoConfig = {
   name: 'Halo',
   slug: 'halo',
   version: '0.1.0',
+  icon: './assets/icon.png',
   orientation: 'portrait',
   userInterfaceStyle: 'dark',
   backgroundColor: '#0B0E13',
@@ -49,6 +50,9 @@ const config: ExpoConfig = {
   },
   web: { bundler: 'metro' },
   plugins: [
+    // Keeps the Xcode-26 fmt/consteval build fix alive across fresh prebuilds
+    // (ios/ is gitignored, so a hand-edited Podfile would not survive).
+    './plugins/withFmtConstevalFix',
     'expo-localization',
     [
       'react-native-google-mobile-ads',
