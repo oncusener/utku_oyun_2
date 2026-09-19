@@ -32,7 +32,12 @@ const config: ExpoConfig = {
   },
   ios: {
     supportsTablet: false,
-    bundleIdentifier: 'com.halo.ring',
+    // com.halo.ring is already taken on Apple's side (App IDs are globally
+    // unique), so iOS uses the developer's own namespace — matching the
+    // registered App ID and the App Store Connect app (Apple ID 6813801713).
+    // Android keeps com.halo.ring: its package namespace is separate and the
+    // release AAB was already built with it.
+    bundleIdentifier: 'com.oncusener.halo',
   },
   android: {
     package: 'com.halo.ring',
