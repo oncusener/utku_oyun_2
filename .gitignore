@@ -9,3 +9,13 @@ android/
 public/canvaskit.wasm
 .env
 .env.local
+
+# yerel imzalama (asla commit'lenmez)
+credentials.json
+credentials/
+*.jks
+*.keystore
+
+# yerel build çıktıları
+*.aab
+*.apk
