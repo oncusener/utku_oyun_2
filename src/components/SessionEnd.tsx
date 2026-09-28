@@ -1,10 +1,10 @@
 /**
- * SessionEnd.tsx — the only screen in the game with text or numbers.
+ * SessionEnd.tsx — the end of an endless run.
  *
- * Everything about this screen is trying not to be a scoreboard. There is no
- * high score, no streak, no "you were 2 away", no share button, nothing stored
- * between sessions. A game you can be pulled out of at your stop should not be
- * keeping a ledger you feel obliged to return to.
+ * Endless is the original Halka, kept as it was: a score attack with a clock.
+ * Levels are where progress is kept now (see screens/), so this screen is still
+ * trying not to be a scoreboard. There is no high score, no streak, no share
+ * button, and nothing from an endless run is stored.
  *
  * It fades in over the same 400ms the board fades out, so the two are one
  * movement rather than two screens.
@@ -24,7 +24,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { TIMING } from '../game/feedback';
-import { palette, type as typeScale } from '../game/theme';
+import { fonts, palette, type as typeScale } from '../game/theme';
 import { toggleLanguage } from '../i18n';
 import { useCopy } from '../i18n/useCopy';
 
@@ -130,9 +130,9 @@ const styles = StyleSheet.create({
   },
   score: {
     ...typeScale.score,
+    fontFamily: fonts.displayLight,
     color: palette.text,
     fontVariant: ['tabular-nums'],
-    fontWeight: '200',
   },
   row: {
     flexDirection: 'row',
@@ -141,18 +141,23 @@ const styles = StyleSheet.create({
   },
   stat: { alignItems: 'center' },
   statValue: {
-    fontSize: 20,
-    fontWeight: '400',
+    fontFamily: fonts.displayLight,
+    fontSize: 22,
     color: palette.text,
     fontVariant: ['tabular-nums'],
   },
   statLabel: {
     ...typeScale.label,
+    fontFamily: fonts.monoMedium,
+    fontSize: 11,
+    letterSpacing: 1.8,
     color: palette.textDim,
     marginTop: 6,
   },
   hint: {
     ...typeScale.hint,
+    fontFamily: fonts.mono,
+    fontSize: 13,
     color: palette.textDim,
     position: 'absolute',
     bottom: 72,
@@ -169,6 +174,8 @@ const styles = StyleSheet.create({
   },
   reviveText: {
     ...typeScale.hint,
+    fontFamily: fonts.mono,
+    fontSize: 13,
     color: palette.text,
   },
   language: {
@@ -180,6 +187,7 @@ const styles = StyleSheet.create({
   },
   languageText: {
     ...typeScale.label,
+    fontFamily: fonts.monoMedium,
     fontSize: 12,
     color: palette.textDim,
   },

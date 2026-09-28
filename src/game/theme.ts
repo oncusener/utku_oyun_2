@@ -73,3 +73,43 @@ export const type = {
   label: { fontSize: 13, letterSpacing: 3 },
   hint: { fontSize: 14, letterSpacing: 1 },
 } as const;
+
+/* ------------------------------------------------------------------ *
+ * The level shell: typography and structure from the Stitch design system
+ * ("Calibrated Precision", stitch_halka_mobile_game_ui_kit/).
+ *
+ * Two families, each doing one job. Space Grotesk, in light weights, carries
+ * every number that matters — a readout, not a scoreboard. JetBrains Mono, in
+ * spaced uppercase, carries every label. The play field itself stays drawn in
+ * Skia and uses none of this; these are for the screens around it.
+ * ------------------------------------------------------------------ */
+
+export const fonts = {
+  displayLight: 'SpaceGrotesk_300Light',
+  display: 'SpaceGrotesk_400Regular',
+  displayMedium: 'SpaceGrotesk_500Medium',
+  mono: 'JetBrainsMono_400Regular',
+  monoMedium: 'JetBrainsMono_500Medium',
+} as const;
+
+export const shell = {
+  /** Trays and cards. */
+  surface: '#141A23',
+  /** Hairline borders, 1px. */
+  line: '#1F2937',
+  /** The dim scrim behind a modal — flat, no blur. */
+  scrim: 'rgba(11,14,19,0.78)',
+  radius: 8,
+  pill: 999,
+  margin: 20,
+} as const;
+
+export const text = {
+  displayXL: { fontFamily: fonts.displayLight, fontSize: 64, letterSpacing: -2.5 },
+  display: { fontFamily: fonts.displayLight, fontSize: 40, letterSpacing: -1.2 },
+  headline: { fontFamily: fonts.display, fontSize: 22, letterSpacing: -0.2 },
+  body: { fontFamily: fonts.mono, fontSize: 13, letterSpacing: 0.1 },
+  label: { fontFamily: fonts.monoMedium, fontSize: 11, letterSpacing: 1.8 },
+  labelSm: { fontFamily: fonts.monoMedium, fontSize: 10, letterSpacing: 1.8 },
+  number: { fontFamily: fonts.displayLight, fontSize: 28, letterSpacing: -0.5 },
+} as const;

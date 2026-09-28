@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@300;400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-background": "#e1e2ea", "surface-dim": "#111319", "background": "#111319", "inverse-surface": "#e1e2ea", "surface": "#111319", "inverse-primary": "#6d4ca6", "primary-fixed-dim": "#d4bbff", "on-primary-fixed": "#270058", "error-container": "#93000a", "secondary-fixed": "#79f7ea", "tertiary": "#ffb866", "outline": "#958e9c", "surface-container-lowest": "#0b0e13", "primary-fixed": "#ebdcff", "on-secondary-fixed": "#00201d", "surface-container-high": "#272a30", "primary-container": "#b794f4", "secondary-container": "#01a89d", "secondary-fixed-dim": "#5adace", "on-surface": "#e1e2ea", "tertiary-fixed-dim": "#ffb866", "tertiary-fixed": "#ffddba", "on-tertiary-container": "#573300", "on-error-container": "#ffdad6", "on-secondary-fixed-variant": "#00504a", "on-primary-fixed-variant": "#55338d", "on-tertiary": "#482900", "primary": "#d4bbff", "surface-variant": "#32353b", "secondary": "#5adace", "on-primary-container": "#492680", "error": "#ffb4ab", "inverse-on-surface": "#2e3036", "on-tertiary-fixed-variant": "#673d00", "on-error": "#690005", "surface-tint": "#d4bbff", "on-surface-variant": "#ccc3d2", "outline-variant": "#4a4551", "tertiary-container": "#dc9741", "surface-container-highest": "#32353b", "surface-container": "#1d2025", "on-tertiary-fixed": "#2b1700", "on-secondary-container": "#003531", "on-secondary": "#003733", "surface-container-low": "#191c21", "on-primary": "#3e1975", "surface-bright": "#36393f" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "margin": "1.25rem", "margin-mobile": "1rem", "space-md": "1rem", "space-lg": "1.5rem", "gutter": "1rem", "gutter-sm": "0.5rem", "space-xl": "2.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, fontFamily: { "display-lg-mobile": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "label-lg": ["JetBrains Mono"], "display-lg": ["Space Grotesk"], "body-lg": ["JetBrains Mono"], "headline-lg": ["Space Grotesk"], "body-md": ["JetBrains Mono"], "label-sm": ["JetBrains Mono"], "telemetry-num": ["Space Grotesk"] }, fontSize: { "display-lg-mobile": ["36px", { lineHeight: "40px", letterSpacing: "-0.03em", fontWeight: "300" }], "headline-md": ["22px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "400" }], "label-lg": ["12px", { lineHeight: "16px", letterSpacing: "0.14em", fontWeight: "500" }], "display-lg": ["48px", { lineHeight: "52px", letterSpacing: "-0.04em", fontWeight: "300" }], "body-lg": ["15px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "400" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "400" }], "body-md": ["13px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "400" }], "label-sm": ["10px", { lineHeight: "14px", letterSpacing: "0.18em", fontWeight: "500" }], "telemetry-num": ["32px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "300" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#0b0e13;color:#e1e2ea;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style></head><body class="bg-surface-container-lowest font-body-md text-on-surface antialiased flex flex-col min-h-screen pt-safe pb-safe"><main class="flex flex-col relative w-full bg-surface-container-lowest flex-1"><div class="flex flex-col w-full select-none overflow-hidden relative">
+<!-- Top HUD Chrome (Quiet Precision Instrument Telemetry) -->
+<header class="w-full px-margin pt-2 pb-3 flex items-center justify-between z-20">
+<!-- Left: Resonance Tokens / Coins -->
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-tertiary">toll</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline tracking-[0.18em] leading-none">JETON // COINS</span>
+<span class="font-label-lg text-label-lg text-on-surface font-medium mt-0.5 tracking-wider">1,450</span>
+</div>
+</div>
+<!-- Center: Stage Telemetry & Micro Progress Bar -->
+<div class="flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-outline tracking-[0.25em] mb-1.5 uppercase">SEVİYE 04 // LEVEL 04</span>
+<div class="w-28 h-[2px] bg-surface-container rounded-full overflow-hidden relative">
+<div class="absolute left-0 top-0 bottom-0 w-[65%] bg-secondary rounded-full transition-all duration-300"></div>
+</div>
+</div>
+<!-- Right: Minimalist Pause / Calibration Menu -->
+<button aria-label="Pause system" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center active:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">pause</span>
+</button>
+</header>
+<!-- Secondary Readout Hairline Matrix (Telemetry Stats) -->
+<div class="w-full px-margin py-1 flex items-center justify-between text-outline font-label-sm text-label-sm z-20">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="tracking-[0.18em]">OPTİK REZONANS // 98.4%</span>
+</div>
+<div class="tracking-[0.18em] text-on-surface-variant">
+      FREKANS // 432 HZ
+    </div>
+</div>
+<!-- MIDDLE 60% OBSERVATION VOID (Reserved exclusively for engine-rendered rings and prisms) -->
+<div class="w-full h-[54vh] relative flex items-center justify-center pointer-events-none">
+<!-- Subtle perimeter coordinate ticks & optical alignment guides only -->
+<div class="absolute top-2 left-4 w-3 h-3 border-t border-l border-outline-variant/30"></div>
+<div class="absolute top-2 right-4 w-3 h-3 border-t border-r border-outline-variant/30"></div>
+<div class="absolute bottom-2 left-4 w-3 h-3 border-b border-l border-outline-variant/30"></div>
+<div class="absolute bottom-2 right-4 w-3 h-3 border-b border-r border-outline-variant/30"></div>
+<!-- Ultra-faint center crosshair calibration (non-intrusive) -->
+<div class="relative w-8 h-8 flex items-center justify-center opacity-25">
+<div class="absolute w-full h-[1px] bg-outline-variant"></div>
+<div class="absolute h-full w-[1px] bg-outline-variant"></div>
+<div class="w-1.5 h-1.5 rounded-full border border-outline-variant"></div>
+</div>
+<!-- Radial azimuth cardinal marks -->
+<div class="absolute top-6 font-label-sm text-[9px] text-outline-variant tracking-widest">000°</div>
+<div class="absolute bottom-6 font-label-sm text-[9px] text-outline-variant tracking-widest">180°</div>
+<div class="absolute left-6 font-label-sm text-[9px] text-outline-variant tracking-widest">270°</div>
+<div class="absolute right-6 font-label-sm text-[9px] text-outline-variant tracking-widest">090°</div>
+</div>
+<!-- BOTTOM 40% THUMB INTERACTION ZONE -->
+<div class="w-full px-margin pb-6 flex flex-col gap-4 z-20">
+<!-- Status Telemetry Cells: Combo, Best, Moves -->
+<div class="grid grid-cols-3 gap-2">
+<!-- Metric 1: Moves Left -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col">
+<span class="font-label-sm text-label-sm text-outline tracking-[0.18em]">HAMLE // MOVES</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-telemetry-num text-telemetry-num text-on-surface leading-none">18</span>
+<span class="font-label-sm text-label-sm text-outline">/ 24</span>
+</div>
+</div>
+<!-- Metric 2: Streak / Resonance -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col">
+<span class="font-label-sm text-label-sm text-outline tracking-[0.18em]">SERİ // STREAK</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="font-telemetry-num text-telemetry-num text-secondary leading-none">x4</span>
+<div class="flex gap-0.5">
+<span class="w-1 h-3 rounded-full bg-secondary"></span>
+<span class="w-1 h-3 rounded-full bg-secondary"></span>
+<span class="w-1 h-3 rounded-full bg-secondary"></span>
+<span class="w-1 h-3 rounded-full bg-secondary"></span>
+</div>
+</div>
+</div>
+<!-- Metric 3: Record / Score -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col">
+<span class="font-label-sm text-label-sm text-outline tracking-[0.18em]">REKOR // BEST</span>
+<div class="mt-1">
+<span class="font-telemetry-num text-telemetry-num text-on-surface leading-none tracking-tight">4,120</span>
+</div>
+</div>
+</div>
+<!-- Rotational Calibrated Azimuth Dial Track / Swipe Zone -->
+<div class="w-full bg-surface-container-low rounded-xl py-3 px-4 flex flex-col items-center justify-center relative touch-pan-x cursor-grab active:cursor-grabbing active:bg-surface-container transition-colors" id="swipeZone">
+<div class="flex items-center justify-between w-full mb-1">
+<span class="font-label-sm text-label-sm text-outline tracking-[0.2em]">AZİMUT // DIAL ALIGNMENT</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono tracking-widest" id="dialDegrees">+042.5°</span>
+</div>
+<!-- Calibrated Horizontal Tick Array -->
+<div class="w-full h-7 flex items-center justify-between relative overflow-hidden px-2 my-0.5">
+<!-- Ruler Hashmarks -->
+<div class="flex items-center justify-between w-full opacity-40">
+<span class="h-2 w-[1px] bg-outline"></span>
+<span class="h-1 w-[1px] bg-outline-variant"></span>
+<span class="h-3 w-[1px] bg-outline"></span>
+<span class="h-1 w-[1px] bg-outline-variant"></span>
+<span class="h-2 w-[1px] bg-outline"></span>
+<span class="h-1 w-[1px] bg-outline-variant"></span>
+<span class="h-4 w-[1px] bg-outline"></span>
+<span class="h-1 w-[1px] bg-outline-variant"></span>
+<span class="h-2 w-[1px] bg-outline"></span>
+<span class="h-1 w-[1px] bg-outline-variant"></span>
+<span class="h-3 w-[1px] bg-outline"></span>
+<span class="h-1 w-[1px] bg-outline-variant"></span>
+<span class="h-2 w-[1px] bg-outline"></span>
+</div>
+<!-- Center Vernier Reticle -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="h-6 w-[2px] bg-secondary rounded-full"></div>
+</div>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[13px] text-outline">sync_alt</span>
+<span class="font-label-sm text-label-sm text-outline tracking-[0.22em] uppercase">Döndürme Alanı // Swipe to Rotate</span>
+</div>
+</div>
+<!-- Ergonomic Thumb Triggers -->
+<div class="grid grid-cols-3 gap-2">
+<!-- Hint Button -->
+<button class="bg-surface-container-low hover:bg-surface-container active:bg-surface-container-high rounded-lg py-2.5 px-3 flex items-center justify-center gap-1.5 transition-all text-on-surface" id="hintBtn" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">lightbulb</span>
+<span class="font-label-sm text-label-sm tracking-[0.14em] uppercase">İpucu // Hint</span>
+</button>
+<!-- Ring Selector Toggle (Inner/Outer Matrix) -->
+<button class="bg-surface-container-low hover:bg-surface-container active:bg-surface-container-high rounded-lg py-2.5 px-3 flex items-center justify-center gap-1.5 transition-all text-on-surface" id="ringToggleBtn" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">data_saver_on</span>
+<span class="font-label-sm text-label-sm tracking-[0.14em] uppercase" id="ringLayerLabel">Halka // Ring 1</span>
+</button>
+<!-- Silent Transit Mode Toggle -->
+<button class="bg-surface-container-low hover:bg-surface-container active:bg-surface-container-high rounded-lg py-2.5 px-3 flex items-center justify-center gap-1.5 transition-all text-on-surface" id="transitBtn" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary" id="transitIcon">volume_up</span>
+<span class="font-label-sm text-label-sm tracking-[0.14em] uppercase" id="transitLabel">Sessiz</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    let currentDeg = 42.5;
+    let startX = 0;
+    let isDragging = false;
+    const swipeZone = document.getElementById('swipeZone');
+    const dialDegrees = document.getElementById('dialDegrees');
+
+    const updateDial = (diff) => {
+      currentDeg = (currentDeg + diff) % 360;
+      if (currentDeg < 0) currentDeg += 360;
+      const sign = currentDeg >= 0 ? '+' : '';
+      dialDegrees.textContent = `${sign}${currentDeg.toFixed(1).padStart(5, '0')}°`;
+    };
+
+    swipeZone.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    }, { passive: true });
+
+    swipeZone.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const currentX = e.touches[0].clientX;
+      const deltaX = (currentX - startX) * 0.4;
+      updateDial(deltaX);
+      startX = currentX;
+    }, { passive: true });
+
+    swipeZone.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    // Ring layer toggle interaction
+    const ringToggleBtn = document.getElementById('ringToggleBtn');
+    const ringLayerLabel = document.getElementById('ringLayerLabel');
+    let currentRing = 1;
+    ringToggleBtn.addEventListener('click', () => {
+      currentRing = currentRing === 1 ? 2 : (currentRing === 2 ? 3 : 1);
+      ringLayerLabel.textContent = `Halka // Ring ${currentRing}`;
+    });
+
+    // Silent transit audio toggle
+    const transitBtn = document.getElementById('transitBtn');
+    const transitIcon = document.getElementById('transitIcon');
+    const transitLabel = document.getElementById('transitLabel');
+    let isMuted = false;
+    transitBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      transitIcon.textContent = isMuted ? 'volume_off' : 'volume_up';
+      transitLabel.textContent = isMuted ? 'Sessiz // Mute' : 'Aktif // On';
+    });
+  })();
+</script></main></body></html>

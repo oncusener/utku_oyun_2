@@ -6,8 +6,8 @@
  *   The board lives in a *shared value*, not in React state. Every visible
  *   quantity — rotation, drop, burst, collapse, near-miss lean, board contents
  *   — is a shared value read from worklets on the UI thread. React renders this
- *   screen twice per session: once on mount, once when SessionEnd appears.
- *   Nothing re-renders per frame, and nothing re-renders per merge.
+ *   screen only when its props change. Nothing re-renders per frame, and
+ *   nothing re-renders per merge.
  *
  *   That is not just a performance flourish. A collapse changes the board *and*
  *   starts the animation that explains the change; if the board went through a
@@ -21,7 +21,15 @@
  *   interpolates.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import {
   Canvas,
@@ -38,6 +46,7 @@ import {
   cancelAnimation,
   interpolateColor,
   runOnJS,
+  runOnUI,
   useDerivedValue,
   useSharedValue,
   withSequence,
@@ -62,8 +71,10 @@ import {
   zeigarnikOffset,
 } from './engine';
 import type { Board, Piece } from './engine';
-import { createBag } from './bag';
+import { createBag, seededRng } from './bag';
 import { helpfulness, levelForMerges, settleMs } from './difficulty';
+import { applyMove, focusColour, levelComplete, levelFailed, newProgress } from './levels';
+import type { LevelProgress, LevelSpec } from './levels';
 import {
   NEAR_MISS_BRIGHTEN,
   NEAR_MISS_SHIFT_PX,
@@ -224,11 +235,32 @@ type Session = {
   score: number;
   merges: number;
   bestChain: number;
+  /** Level mode only: how the current level is going. */
+  progress: LevelProgress | null;
   /** Bumped to abandon any in-flight sequence. Nothing here needs unwinding. */
   run: number;
 };
 
-function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
+/**
+ * Everything the controller reports upward. Held in a ref by the caller so the
+ * controller — built once, in a useMemo with no dependencies — always calls the
+ * current handlers rather than the ones from its first render.
+ */
+export type GameEvents = {
+  onEnd: (stats: SessionStats) => void;
+  onLevelProgress: (p: LevelProgress) => void;
+  onLevelWin: (p: LevelProgress) => void;
+  onLevelFail: (p: LevelProgress) => void;
+};
+
+/** What a level round needs: which level, and which attempt at it this is. */
+export type LevelRun = { spec: LevelSpec; attempt: number };
+
+function useController(
+  sv: Rings,
+  events: React.MutableRefObject<GameEvents>,
+  levelRef: React.MutableRefObject<LevelRun | null>,
+) {
   const ref = useRef<Session>({
     board: emptyBoard(),
     bag: createBag(),
@@ -237,6 +269,7 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
     score: 0,
     merges: 0,
     bestChain: 0,
+    progress: null,
     run: 0,
   });
 
@@ -247,12 +280,14 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
     const pushBoard = () => {
       sv.board.value = encodeBoard(s.board);
     };
+    const level = () => levelRef.current;
 
     const spawn = () => {
-      const ctx = () => ({
-        board: s.board,
-        helpfulness: helpfulness(levelForMerges(s.merges)),
-      });
+      const run = level();
+      const ctx = () =>
+        run
+          ? { board: s.board, helpfulness: run.spec.help, focus: focusColour(run.spec) }
+          : { board: s.board, helpfulness: helpfulness(levelForMerges(s.merges)) };
       s.active = s.next ?? s.bag.draw(ctx());
       // Drawn a turn early, so it reads the board as it is now rather than as
       // it will be — the preview is a hint, not an oracle.
@@ -261,15 +296,35 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       sv.next.value = encodeSlot(s.next);
       sv.drop.value = 0;
       sv.activeAlpha.value = 1;
-      sv.settle.value = 1;
-      sv.phase.value = PHASE_INPUT;
 
-      // The settle arc *is* the timer. Running it as a UI-thread animation
-      // means the countdown cannot be starved by JS work, and its completion
-      // callback is the only place the timer touches game logic.
+      // A piece dealt while the level is paused waits, full arc, in hand.
+      if (paused) {
+        sv.settle.value = 1;
+        held = 1;
+        return;
+      }
+
+      sv.phase.value = PHASE_INPUT;
+      startSettle(1);
+    };
+
+    /** The whole arc, in ms, for whichever mode this is. */
+    const settleTotal = () => {
+      const run = level();
+      return run ? run.spec.settle : settleMs(levelForMerges(s.merges));
+    };
+
+    /**
+     * Run the settle arc down from `from` (1 = full). The arc *is* the timer.
+     * Running it as a UI-thread animation means the countdown cannot be
+     * starved by JS work, and its completion callback is the only place the
+     * timer touches game logic.
+     */
+    const startSettle = (from: number) => {
+      sv.settle.value = from;
       sv.settle.value = withTiming(
         0,
-        { duration: settleMs(levelForMerges(s.merges)), easing: Easing.linear },
+        { duration: Math.max(1, from * settleTotal()), easing: Easing.linear },
         (finished) => {
           'worklet';
           if (!finished) return;
@@ -277,9 +332,57 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
           sv.phase.value = PHASE_BUSY;
           // Read the detent here, on the UI thread that owns it, and pass it
           // across. The JS-side copy of a UI-written shared value can lag.
-          runOnJS(commitDrop)(sv.target.value);
+          runOnJS(commitDrop)(sv.target.value, true, 0);
         },
       );
+    };
+
+    /**
+     * Pausing stops the clock where it is. The remaining arc is read on the UI
+     * thread, which owns it, and handed back; a piece that was not in hand yet
+     * is caught by `spawn` instead.
+     */
+    let paused = false;
+    let held: number | null = null;
+    const holdRemaining = (inHand: boolean, left: number) => {
+      if (!inHand) return;
+      if (paused) {
+        held = left;
+        return;
+      }
+      // Resumed before the UI thread answered: pick the clock straight back up.
+      sv.phase.value = PHASE_INPUT;
+      startSettle(left);
+    };
+    const pause = () => {
+      if (paused) return;
+      paused = true;
+      runOnUI(() => {
+        'worklet';
+        const inHand = sv.phase.value === PHASE_INPUT;
+        const left = sv.settle.value;
+        cancelAnimation(sv.settle);
+        sv.settle.value = left;
+        sv.phase.value = PHASE_BUSY;
+        runOnJS(holdRemaining)(inHand, left);
+      })();
+    };
+    const resume = () => {
+      if (!paused) return;
+      paused = false;
+      if (held === null) return;
+      const left = held;
+      held = null;
+      sv.phase.value = PHASE_INPUT;
+      startSettle(left);
+    };
+
+    /** The detent nearest `steps` whose slot will take the piece, or null. */
+    const nearestOpen = (steps: number, piece: Piece): number | null => {
+      for (const d of [1, -1, 2, -2, 3]) {
+        if (applyDrop(s.board, offsetFromSteps(steps + d), piece).ok) return steps + d;
+      }
+      return null;
     };
 
     const nearMiss = async (token: number) => {
@@ -313,7 +416,10 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       await sleep(TIMING.POST_DROP_MS);
       if (!alive(token)) return;
 
-      const res = resolve(s.board);
+      // The board as it stood the instant the piece landed. The colours a run
+      // cleared can only be read from here — after the collapse they are gone.
+      const dropped = s.board;
+      const res = resolve(dropped);
 
       for (let i = 0; i < res.steps.length; i++) {
         const step = res.steps[i];
@@ -361,11 +467,26 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       s.merges += res.chain;
       s.bestChain = Math.max(s.bestChain, res.chain);
 
-      // Nowhere left to put anything: every rotation is a losing drop, so end
-      // here rather than handing the player a piece and a countdown they cannot
-      // use. Checked before the near-miss lean — a full board gets the game-over
-      // framing instead, which is the same gesture done better.
-      if (isBoardFull(s.board)) {
+      const run = level();
+      if (run && s.progress) {
+        s.progress = applyMove(s.progress, dropped, res);
+        events.current.onLevelProgress(s.progress);
+
+        // Win is checked first: a drop that fills the last slot but finishes
+        // the objective is a win, never a loss.
+        if (levelComplete(run.spec, s.progress)) {
+          void finishLevel(true, steps);
+          return;
+        }
+        if (levelFailed(run.spec, s.progress, s.board)) {
+          void finishLevel(false, steps);
+          return;
+        }
+      } else if (isBoardFull(s.board)) {
+        // Nowhere left to put anything: every rotation is a losing drop, so end
+        // here rather than handing the player a piece and a countdown they
+        // cannot use. Checked before the near-miss lean — a full board gets the
+        // game-over framing instead, which is the same gesture done better.
         void endSession(offsetFromSteps(steps), steps, false);
         return;
       }
@@ -376,6 +497,14 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       }
 
       spawn();
+    };
+
+    /** The piece bumps an occupied slot and sinks back. It never lands. */
+    const bump = () => {
+      sv.drop.value = withSequence(
+        withTiming(0.26, { duration: 90, easing: Easing.out(Easing.quad) }),
+        withTiming(0, { duration: 150, easing: Easing.inOut(Easing.quad) }),
+      );
     };
 
     /**
@@ -391,11 +520,7 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       sv.settle.value = 0;
 
       if (bumped) {
-        // The piece bumps the occupied slot and sinks back. It never lands.
-        sv.drop.value = withSequence(
-          withTiming(0.26, { duration: 90, easing: Easing.out(Easing.quad) }),
-          withTiming(0, { duration: 150, easing: Easing.inOut(Easing.quad) }),
-        );
+        bump();
         sv.activeAlpha.value = withTiming(0.3, { duration: 240 });
       }
 
@@ -416,7 +541,7 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
         duration: TIMING.CROSS_FADE_MS,
         easing: Easing.inOut(Easing.quad),
       });
-      onEnd({
+      events.current.onEnd({
         score: s.score,
         level: levelForMerges(s.merges),
         merges: s.merges,
@@ -424,11 +549,46 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       });
     };
 
-    /** `steps` is the committed detent, read on the UI thread by the caller. */
-    const commitDrop = (steps: number) => {
+    /**
+     * A level is over, either way. A loss gets the same framing as an endless
+     * game over — the ring turns so its nearest thing to a merge sits under the
+     * anchor — because that is exactly the moment the continue offer lands, and
+     * "you were this close" is the honest version of it. A win just holds.
+     */
+    const finishLevel = async (won: boolean, steps: number) => {
+      s.run += 1;
+      const token = s.run;
+      sv.phase.value = PHASE_BUSY;
+      const progress = s.progress;
+      if (!progress) return;
+
+      if (!won) {
+        const framed = nearestSteps(
+          steps,
+          zeigarnikOffset(s.board, offsetFromSteps(steps)),
+        );
+        sv.target.value = framed;
+        sv.steps.value = withTiming(framed, {
+          duration: TIMING.GAME_OVER_TURN_MS,
+          easing: Easing.out(Easing.cubic),
+        });
+      }
+
+      await sleep(TIMING.GAME_OVER_HOLD_MS);
+      if (!alive(token)) return;
+
+      if (won) events.current.onLevelWin(progress);
+      else events.current.onLevelFail(progress);
+    };
+
+    /**
+     * `steps` is the committed detent and `left` the arc still to run, both
+     * read on the UI thread by the caller. `timed` is true when the arc ran out
+     * rather than the thumb letting go.
+     */
+    const commitDrop = (steps: number, timed = false, left = 0) => {
       const token = s.run;
       cancelAnimation(sv.settle);
-      sv.settle.value = 0;
       sv.phase.value = PHASE_BUSY;
 
       const piece = s.active;
@@ -437,9 +597,38 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       const offset = offsetFromSteps(steps);
       const landed = applyDrop(s.board, offset, piece);
       if (!landed.ok) {
+        if (level()) {
+          // Out of time over a taken slot: the ring turns itself to the
+          // nearest slot that is free, and the piece goes there. Hesitating
+          // costs the choice of where it lands — never the level, which is
+          // only ever lost to a full ring.
+          const open = timed ? nearestOpen(steps, piece) : null;
+          if (open !== null) {
+            sv.target.value = open;
+            sv.steps.value = withTiming(open, {
+              duration: TIMING.SNAP_MS * 2,
+              easing: Easing.out(Easing.cubic),
+            });
+            stepTick();
+            setTimeout(() => {
+              if (alive(token)) commitDrop(open, true, 0);
+            }, TIMING.SNAP_MS * 2);
+            return;
+          }
+          // Letting go over a taken slot is a slip of the thumb, not a
+          // decision. The piece bumps and stays in hand, and the clock carries
+          // on from where it was — a slip buys no extra time.
+          bump();
+          sv.phase.value = PHASE_INPUT;
+          if (left > 0) startSettle(left);
+          return;
+        }
+        // Endless has always ended here.
         void endSession(offset, steps, true);
         return;
       }
+
+      sv.settle.value = 0;
 
       sv.drop.value = withTiming(1, {
         duration: TIMING.DROP_MS,
@@ -459,24 +648,41 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
     };
 
     /**
-     * Put a fresh, empty ring on screen.
+     * Put a ring on screen and start dealing.
      *
      * `keepScore` is the whole difference between a new game and a rewarded
-     * continue: the board is wiped either way, but a continue keeps everything
-     * the player already earned. The bag is reset in both cases so a continue
-     * starts from the same generous opening weights rather than from whatever
-     * drought killed the previous board.
+     * continue. In endless mode both start from an empty ring. In level mode a
+     * fresh attempt lays out the level's own starting ring and reseeds the bag
+     * for that attempt, while a continue clears the ring and keeps every merge
+     * already counted toward the objective.
      */
     const beginRound = (keepScore: boolean) => {
       s.run += 1;
-      s.board = emptyBoard();
-      s.bag.reset();
+      const run = level();
       s.active = null;
       s.next = null;
-      if (!keepScore) {
-        s.score = 0;
-        s.merges = 0;
-        s.bestChain = 0;
+
+      if (run) {
+        s.board = keepScore ? emptyBoard() : run.spec.start.slice();
+        if (!keepScore) {
+          // Varies by attempt so a retry is not dealt the same opening that
+          // just lost; the level's difficulty was measured the same way.
+          s.bag = createBag(seededRng(run.spec.seed + run.attempt * 104729));
+          s.progress = newProgress(run.spec);
+          s.score = 0;
+          s.merges = 0;
+          s.bestChain = 0;
+        }
+        if (s.progress) events.current.onLevelProgress(s.progress);
+      } else {
+        s.board = emptyBoard();
+        s.bag.reset();
+        s.progress = null;
+        if (!keepScore) {
+          s.score = 0;
+          s.merges = 0;
+          s.bestChain = 0;
+        }
       }
 
       pushBoard();
@@ -506,7 +712,7 @@ function useController(sv: Rings, onEnd: (stats: SessionStats) => void) {
       cancelAnimation(sv.settle);
     };
 
-    return { restart, revive, commitDrop, abandon };
+    return { restart, revive, commitDrop, abandon, pause, resume };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
@@ -721,7 +927,32 @@ function Anchor({ geo }: { geo: Geo }) {
  * Screen
  * ------------------------------------------------------------------ */
 
-export default function Game() {
+/**
+ * The two ways to play.
+ *
+ * Endless is the original game, unchanged: a clock, a score, and SessionEnd.
+ * Level mode keeps the clock (each level sets its own length) but trades the
+ * score for an objective.
+ * Level mode hands everything but the ring upward — the HUD, the win screen,
+ * the continue offer — because those are screens with their own layout and the
+ * ring should not know they exist. A new level or a new attempt is a remount
+ * (the caller keys the component on it), so a run never leaks into the next.
+ */
+export type GameProps =
+  | { mode: 'endless' }
+  | {
+      mode: 'level';
+      run: LevelRun;
+      /** Incremented by the caller to continue after a failed level. */
+      reviveToken: number;
+      /** Stops the settle clock and the thumb while the pause sheet is up. */
+      paused: boolean;
+      onProgress: (p: LevelProgress) => void;
+      onWin: (p: LevelProgress) => void;
+      onFail: (p: LevelProgress) => void;
+    };
+
+function Game(props: GameProps) {
   const { width, height } = useWindowDimensions();
   const geo = useMemo(() => layout(width, height), [width, height]);
 
@@ -730,6 +961,14 @@ export default function Game() {
   /** One continue per run, so a good run ends on its own terms eventually. */
   const revived = useRef(false);
   const sv = useRings();
+
+  const levelRef = useRef<LevelRun | null>(props.mode === 'level' ? props.run : null);
+  const events = useRef<GameEvents>({
+    onEnd: () => {},
+    onLevelProgress: () => {},
+    onLevelWin: () => {},
+    onLevelFail: () => {},
+  });
 
   const handleEnded = useCallback((stats: SessionStats) => {
     setEnded(stats);
@@ -742,12 +981,35 @@ export default function Game() {
     if (moment === 'interstitial') void showInterstitial();
   }, []);
 
-  const ctrl = useController(sv, handleEnded);
+  // Point the controller at the current handlers before it deals the first
+  // piece. A layout effect, so it is in place before the effect below runs.
+  useLayoutEffect(() => {
+    levelRef.current = props.mode === 'level' ? props.run : null;
+    events.current = {
+      onEnd: handleEnded,
+      onLevelProgress: props.mode === 'level' ? props.onProgress : () => {},
+      onLevelWin: props.mode === 'level' ? props.onWin : () => {},
+      onLevelFail: props.mode === 'level' ? props.onFail : () => {},
+    };
+  });
+
+  const ctrl = useController(sv, events, levelRef);
 
   useEffect(() => {
     ctrl.restart();
     return ctrl.abandon;
   }, [ctrl]);
+
+  const reviveToken = props.mode === 'level' ? props.reviveToken : 0;
+  useEffect(() => {
+    if (reviveToken > 0) ctrl.revive();
+  }, [reviveToken, ctrl]);
+
+  const paused = props.mode === 'level' && props.paused;
+  useEffect(() => {
+    if (paused) ctrl.pause();
+    else ctrl.resume();
+  }, [paused, ctrl]);
 
   const restart = useCallback(() => {
     revived.current = false;
@@ -795,7 +1057,7 @@ export default function Game() {
           'worklet';
           if (sv.phase.value !== PHASE_INPUT) return;
           sv.phase.value = PHASE_BUSY;
-          runOnJS(ctrl.commitDrop)(sv.target.value);
+          runOnJS(ctrl.commitDrop)(sv.target.value, false, sv.settle.value);
         }),
     [sv, ctrl],
   );
@@ -841,7 +1103,7 @@ export default function Game() {
         </View>
       </GestureDetector>
 
-      {ended ? (
+      {props.mode === 'endless' && ended ? (
         <SessionEnd
           stats={ended}
           onRestart={restart}
@@ -856,5 +1118,12 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: palette.bg },
   fill: { flex: 1 },
 });
+
+/**
+ * Memoised because the level screen re-renders on every move to update its HUD,
+ * and the ring has nothing to redraw when that happens — its state is all in
+ * shared values. Callers pass stable callbacks for exactly this reason.
+ */
+export default memo(Game);
 
 export { layout, SLOTS };

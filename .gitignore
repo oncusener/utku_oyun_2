@@ -19,3 +19,6 @@ credentials/
 # yerel build çıktıları
 *.aab
 *.apk
+
+# Stitch export: the unzipped folder is kept as the design reference
+stitch_halka_mobile_game_ui_kit.zip

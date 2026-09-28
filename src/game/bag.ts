@@ -26,7 +26,17 @@ export type Rng = () => number;
  * how much luck the game is willing to arrange on your behalf. Omit the context
  * entirely and the bag falls back to blind weighting.
  */
-export type BagContext = { board: Board; helpfulness: number };
+export type BagContext = {
+  board: Board;
+  helpfulness: number;
+  /**
+   * A colour the current level asks the player to collect. Without this the
+   * bag steers toward whatever colour happens to be useful on the board, and a
+   * "clear five teal" level becomes a lottery: simulated, the first colour
+   * level was won 32% of the time against 86% for its merge neighbours.
+   */
+  focus?: Color;
+};
 
 export type Bag = {
   draw: (ctx?: BagContext) => Piece;
@@ -45,6 +55,9 @@ const DROUGHT_WINDOW = 6;
 
 /** Extra weight, at full helpfulness, for a colour that would merge right now. */
 const MERGE_BOOST = 2.4;
+/** Extra weight for the colour the level's objective asks for. */
+const FOCUS_BOOST = 0.9;
+
 /** Extra weight for a colour that has a pair on the board with room to grow. */
 const PAIR_BOOST = 1.0;
 /**
@@ -100,6 +113,10 @@ export function createBag(rng: Rng = Math.random): Bag {
         if (completesRun(ctx.board, { color: c })) w *= 1 + MERGE_BOOST * help;
         else if (hasLivePair(ctx.board, c)) w *= 1 + PAIR_BOOST * help;
         else if (hasColor(ctx.board, c)) w *= 1 + SEED_BOOST * help;
+        // Applied on top of, not instead of, the board reading above: the
+        // objective colour should turn up more, but a colour that would merge
+        // right now is still the better piece to be dealt.
+        if (ctx.focus === c) w *= 1 + FOCUS_BOOST;
       }
       return w;
     });

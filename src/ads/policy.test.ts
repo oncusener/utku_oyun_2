@@ -153,7 +153,10 @@ test('an interstitial that is due outranks the revive', () => {
 test('the revive fills the sessions the interstitial does not take', () => {
   const notDue = afterSessions(SESSIONS_PER_INTERSTITIAL * 3 + 1);
   assert.equal(
-    chooseAdMoment({ policy: notDue, rewardLoaded: true, alreadyRevived: false }, 1_000_000),
+    chooseAdMoment(
+      { policy: notDue, rewardLoaded: true, alreadyRevived: false },
+      1_000_000,
+    ),
     'revive',
   );
   // ...but only once per run, and only when one is loaded.
@@ -162,7 +165,10 @@ test('the revive fills the sessions the interstitial does not take', () => {
     'none',
   );
   assert.equal(
-    chooseAdMoment({ policy: notDue, rewardLoaded: false, alreadyRevived: false }, 1_000_000),
+    chooseAdMoment(
+      { policy: notDue, rewardLoaded: false, alreadyRevived: false },
+      1_000_000,
+    ),
     'none',
   );
 });
