@@ -5,3 +5,6 @@ android
 ios
 public
 package-lock.json
+
+# Stitch design export — kept as delivered, a reference rather than source
+stitch_halka_mobile_game_ui_kit

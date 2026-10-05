@@ -4,11 +4,18 @@ A one-thumb ring puzzle. Six slots, three colours, one piece at a time.
 
 Drag anywhere horizontally to turn the ring; 48px turns it one 60° detent. Let
 go — or let the settle arc run out — and the piece drops into whichever slot is
-under the anchor at 12 o'clock. Three or more of a colour in a row merge, the
-survivors fall counter-clockwise into the hole, and sometimes that lands another
-three together.
+under the anchor at 12 o'clock.
+Three or more of a colour in a row merge, the survivors fall counter-clockwise
+into the hole, and sometimes that lands another three together.
 
-Built to be put down. No account, no streak, no saved score, no notification.
+Two ways to play. **Levels** give the ring a stated goal — make four merges,
+clear nine teal pieces, condense a prism — and end when the goal is met or the
+ring fills; stars for doing it in few drops, coins for clearing it, a map of
+twelve-level regions. **Endless** is the original game: no goal, a clock that
+tightens every eight merges, and a score.
+
+Built to be put down. No account, no streak, no notification. Levels remember
+where you got to; endless remembers nothing.
 
 ## Running it
 
@@ -97,14 +104,16 @@ under Node's test runner — no jest, no bundler, no config.
 npm test
 ```
 
-66 tests across the engine, the ad policy, the scale and the locales. The exhaustive ones
+94 tests across the engine, the level generator, the save file, the ad policy,
+the scale and the locales. The exhaustive ones
 are the load-bearing set: they walk all 5⁶ = 15,625 reachable boards and assert
 that `resolve` always terminates on a stable ring, that pieces are never lost or
 invented, that survivors only ever slide counter-clockwise, and that a reported
 near miss is genuinely two-plus-a-reachable-third.
 
 Everything under test is deliberately free of React and of native modules —
-`engine.ts`, `policy.ts`, `scale.ts`, `i18n/index.ts` — which is why the suite
+`engine.ts`, `levels.ts`, `save.ts`, `policy.ts`, `scale.ts`, `i18n/index.ts` —
+which is why the suite
 needs no bundler, no jest and no mocking. That constraint is worth defending:
 moving the chain-scale mapping into `feedback.ts`, which imports `expo-haptics`
 and `expo-audio`, broke the whole engine suite in one commit.
@@ -117,21 +126,36 @@ npm run verify   # typecheck + tests + lint
 
 ```
 src/
-  App.tsx                  gesture root, hidden status bar, mounts Game
+  App.tsx                  fonts, the save, and which of three screens is up
   bootstrap.native.ts      iOS/Android entry
   bootstrap.web.ts         browser entry — loads CanvasKit, then mounts
+  screens/
+    LevelMap.tsx           regions of twelve, stars, the play button
+    LevelScreen.tsx        one level: Game + HUD + pause + result, coins, ads
+    LevelHud.tsx           level, objectives, stars on track, lesson line
+    LevelResult.tsx        win (stars, coins, double) and loss (continue, retry)
+    EndlessScreen.tsx      the original game plus a way back to the map
+    objectives.tsx         one name and one mark per objective, everywhere
+    insets.ts              fixed notch / home-indicator clearances
+  progress/
+    save.ts                the save model — pure: rewards, coins, parsing
+    storage.ts             one JSON file, written atomically (web: .web.ts)
+    save.test.ts
   game/
-    Game.tsx               Skia canvas, pan gesture, session orchestration
+    Game.tsx               Skia canvas, pan gesture, level and endless rounds
     engine.ts              ring rules — pure, deterministic, no RN imports
     engine.test.ts         node:test suite
-    bag.ts                 weighted draw, seedable for tests
+    levels.ts              level generator, objectives, stars — pure
+    levels.test.ts
+    bag.ts                 weighted draw, seedable, can favour a colour
     difficulty.ts          level -> settle duration, and how much luck to arrange
     feedback.ts            haptics, and every timing constant
     scale.ts               which note a chain link sounds — pure
     sound.ts               the tone players
-    theme.ts               colours and geometry
+    theme.ts               colours, geometry, fonts, surfaces
   components/
-    SessionEnd.tsx         the only screen with text or numbers
+    SessionEnd.tsx         end of an endless run
+    ui.tsx                 buttons, panels, coin and star marks
   i18n/
     index.ts               language state, resolution, subscription
     useCopy.ts             the React binding
@@ -151,10 +175,12 @@ tools/
   generate-notes.py      renders them; committed so the timbre stays editable
 ```
 
-**The board lives in a shared value, not in React state.** The play screen
-renders twice per session: once on mount, once when `SessionEnd` appears.
-Everything else — rotation, drop, burst, collapse, the near-miss lean — is a
-shared value read from worklets on the UI thread.
+**The board lives in a shared value, not in React state.** The ring never
+re-renders to show a move: rotation, drop, burst, collapse, the near-miss lean
+and the board itself are shared values read from worklets on the UI thread. In
+level mode the HUD around it does re-render once per move to update its counts,
+which is why `Game` is memoised and handed stable callbacks — the ring sits that
+render out.
 
 That is a correctness decision as much as a performance one. A collapse changes
 the board _and_ starts the animation that explains the change. If the board went
@@ -214,31 +240,151 @@ the settle timer still tightens, but it was never what killed anybody. Six slots
 fill long before anyone runs out of thinking time, so tightening only the clock
 made the game harsher along the one axis that was not the problem.
 
-**Level is derived from merges,** `1 + floor(merges / 8)`, rather than
+**Endless level is derived from merges,** `1 + floor(merges / 8)`, rather than
 incremented on `merges % 8 == 0`. A three-chain adds three merges at once and the
 modulo test would skip the level entirely.
+
+## Levels
+
+A level is "reach this goal before the ring fills". Three kinds of goal —
+merges, pieces of one colour, prisms — and every level is a pure function of its
+number (`levelSpec(id)` in `levels.ts`): no data file, no level that can be
+missing, and the whole curve re-tunes by editing arithmetic. Twelve levels make
+a region. Every fifth level from the seventh on is marked hard and asks for one
+more, but never the first of a region.
+
+**There is no move limit. The ring is what you lose to.** The Stitch mock-ups had one
+("KALAN HAMLE", "+3 HAMLE"), and it was built and simulated before being taken
+out: on a six-slot ring, with the budget anywhere near fair, the ring fills
+before the moves run out every time — 150 losses to a full ring for every 0 to
+an empty budget. A counter that never reaches zero is decoration, and worse, it
+tells the player they are safe right up until they lose to something it never
+showed them. Every drop adds a piece and only a merge removes any, so a level
+cannot stall: it ends in a win or a full ring. Drops still count — toward stars.
+
+**Stars are calibrated, not reasoned.** Three stars at par, two within a margin.
+The first par formula handed three stars to 81% of wins, which makes them
+meaningless; the constants now are fitted to the drops the most efficient third
+of simulated wins actually used, and wins split 59% / 33% / 8% across three, two
+and one star.
+
+What simulation changed, 200 attempts per level by the same one-ply AI:
+
+| problem found                                   | fix                                           | result                    |
+| ----------------------------------------------- | --------------------------------------------- | ------------------------- |
+| colour goals were a lottery                     | the bag leans toward the wanted colour        | first colour level 32→86% |
+| a "make a chain" goal was luck, not skill       | removed                                       | was 4–7%                  |
+| opening levels stuck at 86% whatever the budget | levels 1–3 start on a hand-laid teaching ring | 99 / 99 / 98%             |
+| the move limit never bound                      | removed; drops feed stars instead             | 150 : 0 → n/a             |
+
+The curve that came out: levels 1–10 average 85%, 11–30 68% (about one and a
+half attempts), 31–60 45% (about 50% normal, 27–40% hard). No level in the first
+sixty was unwinnable.
+
+Each idea is taught once, where it first appears. Levels 1 and 2 are laid out
+by hand — a pair beside the anchor, then a pair round the back that cannot be
+finished without turning the ring — and the first colour and first prism levels
+show one line of instruction until the idea has worked once. `lessonFor` asks
+the generator where each idea first turns up rather than hard-coding it.
+
+**The settle arc still runs in levels.** It was taken out once, on the theory
+that a puzzle should let you think as long as you like, and the game went slack:
+with unlimited time every drop can be checked against every rotation, and the
+ring stops being something you play with your thumb. So each level has its own
+clock — 6.5s a piece on level 1, losing 2.5% a level down to a 3s floor, far
+gentler than endless's 7% — and the pause button stops it.
+
+Running out of time costs the choice of where the piece lands, never the level:
+if the anchor is over a taken slot when the arc ends, the ring turns itself to
+the nearest free slot and the piece drops there. Letting go over a taken slot
+yourself is a slip of the thumb rather than a decision, so the piece bumps and
+stays in hand — and the clock carries on from where it was, so a slip buys no
+time. Only endless treats either as the end of the run.
+
+The simulated win rates above come from a player with no clock; a human against
+the arc will sit somewhat below them, most on the later levels.
+
+## Progress
+
+Levels keep a save: the highest level unlocked, the stars per level, coins, and
+the language if one was chosen. It is one small JSON file in the app's document
+directory (`localStorage` on web). Writes go to a temporary file first; on
+Android the move over the real file is an atomic rename, on iOS expo-file-system
+deletes then moves, so loading falls back to the temporary file if a crash lands
+in between. Anything unreadable — truncated, hand-edited, an older version —
+is repaired or replaced by `parseSave` rather than trusted, and never stops the
+game opening.
+
+Coins come from clearing a level the first time. Replaying pays only for stars
+the replay adds, a third of the reward per star, so level 1 is not a coin farm.
+Coins buy one thing so far: a continue after the ring fills, 60 coins, once per
+attempt — the ring empties and the progress toward the goal stays. The same
+continue is offered for a rewarded ad.
+
+## Design
+
+The screens around the ring follow the Stitch export in
+`stitch_halka_mobile_game_ui_kit/` and its design system (`calibrated_precision/
+DESIGN.md`): the existing palette, Space Grotesk in light weights for numbers,
+JetBrains Mono in spaced capitals for labels, hairline borders instead of
+shadows, one filled button per screen, controls in the lower part of the screen.
+The fonts load at startup; nothing draws until they have.
+
+Taken from the mock-ups: the region map with filled, current and locked nodes,
+the win screen's stat row and coin panel, the "so close" loss screen built around
+one big percentage, the double-reward and continue offers.
+
+Left out, on purpose:
+
+- **Every label in both languages at once** ("DÖNDÜR // ROTATE"). The game has
+  a language toggle; saying everything twice halves the room for saying it.
+- **The gameplay HUD's eleven readouts** — score, best, streak, azimuth, a
+  rotate slider, a "release to drop" button, hint and mute buttons. The ring is
+  the interface. What survived is what the ring cannot show: level, goal,
+  progress, whether three stars are still possible, and pause.
+- **The move counter and "+3 moves"**, for the reasons under Levels.
+- **Invented region lore and version strings** ("OPTİK REZONANS HATTI",
+  "SYS.V.3.1").
+- **Shop, daily reward and settings screens.** A shop needs store products that
+  do not exist yet; a daily reward is a retention mechanic the brief rates below
+  a clear goal, which is what levels are; the only setting is the language, and
+  that is a toggle on the map.
 
 ## Language
 
 English and Turkish, chosen from the device's own preference list at startup,
-with a toggle on the end screen for when that guess is wrong.
+with a toggle on the map and on the endless end screen for when that guess is
+wrong.
 
 There is no i18n library. One would be several hundred kilobytes to solve
-problems this game does not have — there is exactly one screen with text on it,
-no pluralisation, no interpolation, no date formatting. What it does need is
+problems this game does not have. Labels are written as label + number
+("MERGES 3"), which is the design system's voice and means there is nothing to
+pluralise; the few numbers inside sentences go through a five-line `format()`
+with `{n}` placeholders, so a translator decides where the number sits — Turkish
+writes `%94`, not `94%`. What it does need is
 that a missing translation cannot ship, and that is a type constraint rather
 than a runtime one: `locales/tr.ts` is declared as `Copy`, a widened version of
 the English catalogue's shape, so adding an English key breaks the build until
-Turkish has one too. A test covers what types cannot — blank strings, and
-strings left in English by accident.
+Turkish has one too. Tests cover what types cannot — blank strings, strings left
+in English by accident, and a translation that drops a `{n}` its English
+original has.
 
-The choice is not persisted, because nothing in this game is. The device locale
-is right almost always; the toggle covers the rest and lasts the session.
+A language picked with the toggle is remembered in the save file. One that was
+never picked is not written down, so a player who never touches the toggle keeps
+following their phone.
 
 ## Ads
 
-An interstitial on a cadence, and an optional rewarded interstitial that clears
-the ring and lets a run continue.
+An interstitial on a cadence, and an optional rewarded interstitial. In endless
+the reward clears the ring and the run continues. In a level it is either the
+continue after a full ring or, on a win, doubling the coins the level paid.
+
+A level's end counts as a session for the cadence, and the choice between the
+two ads is the same `chooseAdMoment` call. What differs is when an interstitial
+plays: not over the result screen, but when the player leaves it — next level,
+retry, or back to the map. A win should get to be a win before anything
+interrupts it, and choosing to continue cancels a pending interstitial rather
+than following the continue with one.
 
 **Consent comes before the first ad request, not after.** `consent.ts` runs
 Google's UMP form and then, on iOS, the App Tracking Transparency prompt — in
@@ -247,7 +393,9 @@ for only when both say yes; miss either one and every request carries
 `requestNonPersonalizedAdsOnly`, which is also what you get if the whole flow
 throws. `initAds` awaits it before it initialises the SDK or preloads anything,
 so there is no window where an ad could be requested ahead of consent — and the
-gate is that await, not a flag the UI reads, because Halo has no ad UI to gate.
+gate is that await, not a flag the UI reads. The only ad buttons Halo shows —
+continue, double the reward — appear only once an ad has already loaded, which
+cannot happen before consent.
 Like the rest of the layer it is safe in Expo Go: it is only entered once a real
 native module has resolved, which never happens there. This mirrors orbeat and
 zenly; unlike zenly it carries no store, since nothing renders off the result.
@@ -308,10 +456,23 @@ bundler, so a pure design decision cannot sit in a file that imports
 
 ## iOS
 
-The code is platform-agnostic and the iOS bundle builds (1250 modules, all six
-tones included), but **nothing here has been run on an iOS device or
-simulator** — this machine has Command Line Tools without Xcode, so `simctl`
-does not exist. Treat iOS as unverified beyond configuration.
+Played in the iOS Simulator (iPhone 17, iOS 26.5) through Expo Go 2.33.17,
+the SDK 53 build. Not yet on a physical iPhone, and not as a development build,
+so ads on iOS are still unverified.
+
+```bash
+npx expo start --ios --go
+```
+
+If Xcode lives anywhere other than `/Applications`, `expo start --ios` fails with
+"Can't determine id of Simulator app": the CLI looks Simulator up by name
+through Launch Services, which only knows about apps it has seen. Registering it
+once fixes that —
+`lsregister -f <Xcode>.app/Contents/Developer/Applications/Simulator.app` — and
+`xcode-select` has to point at that Xcode as well. The CLI also asks macOS for
+permission to script System Events so it can raise the Simulator window; without
+it, it exits after installing Expo Go. `npx expo start --go` plus
+`xcrun simctl openurl booted exp://127.0.0.1:8081` sidesteps that.
 
 What was checked, by prebuilding and reading the generated `Info.plist`:
 `GADApplicationIdentifier` is injected correctly, which is the entry whose
@@ -320,8 +481,8 @@ absence crashes the Google SDK on launch.
 The consent flow adds one more iOS-only dependency: `NSUserTrackingUsageDescription`,
 without which the ATT prompt cannot appear and iOS personalisation stays off.
 It is set by the `expo-tracking-transparency` plugin and confirmed in the
-resolved `expo config`; it has **not** been read back out of a prebuilt
-`Info.plist` here, for the same missing-Xcode reason.
+resolved `expo config`; it has **not** yet been read back out of a prebuilt
+`Info.plist`.
 
 One gap is left deliberately open. `SKAdNetworkItems` lists only Google's own
 identifier. iOS 14+ attributes installs through SKAdNetwork and a network absent
@@ -334,6 +495,12 @@ correctness — the app runs and serves ads either way, which is precisely why
 this is easy to ship without noticing.
 
 ## Deliberate gaps
+
+**No safe-area library.** One would be a new native module and so a new
+development build for every tester, to position half a dozen labels.
+`screens/insets.ts` holds fixed clearances for the camera cutout and the home
+indicator, which fit current phones; a device that needs more will show it at
+the edges of the map and the result screens first.
 
 **The Zeigarnik hook reframes rather than rearranges.** The brief asks the final
 board to show an adjacent same-coloured pair, rotating the ring offset if needed.
@@ -374,7 +541,8 @@ game runs 306 turns, to a maximum of 3248.
 
 ## Verified
 
-Typecheck clean, 49/49 tests passing, the app bundles through Metro, and it has
+Typecheck clean, 95/95 tests passing, the app bundles through Metro (1406
+modules), and it has
 been played in the browser: rotation and snapping, tap-to-drop and drag-to-drop,
 a three-in-a-row merge with the survivors collapsing counter-clockwise into the
 exact slots the engine predicts, a four-run condensing into a prism, the
@@ -386,6 +554,16 @@ register, both languages display, and the ads layer stays silently absent with
 no errors. And through a development build: AdMob initialises, a rewarded
 interstitial loads and presents as a Google test ad, the reward is granted, and
 the run continues on a cleared ring.
+
+The level shell has been played in the iOS Simulator: first launch opening
+straight into level 1, the map with cleared, current and locked nodes and the
+coin balance, the HUD, the settle arc running down and dropping the piece, a
+timed-out drop over a taken slot turning the ring to the nearest free slot,
+pause freezing the arc and resume picking it up where it stopped, a full ring
+ending the level on the "RING FULL / 50%" screen, a 60-coin continue emptying
+the ring while keeping the progress, and the balance surviving the trip back to
+the map. The win screen and the double-reward ad have not been exercised by
+this pass.
 
 Not yet seen with human eyes: the 260ms burst and the near-miss lean (both too
 brief to catch by screenshot), a two-chain cascade, and the game-over framing

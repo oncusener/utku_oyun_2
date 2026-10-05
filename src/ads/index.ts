@@ -19,12 +19,7 @@ import {
 } from './adUnits.ts';
 import { resolveConsent, showPrivacyOptions } from './consent.ts';
 import { loadAdsNative } from './native.ts';
-import {
-  chooseAdMoment,
-  newPolicyState,
-  recordSession,
-  recordShown,
-} from './policy.ts';
+import { chooseAdMoment, newPolicyState, recordSession, recordShown } from './policy.ts';
 import type { AdMoment, PolicyState } from './policy.ts';
 
 type Status = 'idle' | 'initialising' | 'ready' | 'unavailable';

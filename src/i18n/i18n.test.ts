@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 import {
   LANGUAGES,
   copy,
+  format,
   getLanguage,
   initLanguage,
   resolveLanguage,
@@ -110,4 +111,23 @@ test('LANGUAGES lists exactly what the catalogue can serve', () => {
     assert.equal(typeof copy().sessionEnd.again, 'string');
   }
   initLanguage(['en-US']);
+});
+
+test('format fills placeholders and leaves unknown ones visible', () => {
+  assert.equal(format('LEVEL {n}', { n: 7 }), 'LEVEL 7');
+  assert.equal(format('%{n}', { n: 94 }), '%94');
+  assert.equal(format('{a} · {b}', { a: 'x', b: 2 }), 'x · 2');
+  // A typo in a key should show up on screen, not silently become empty.
+  assert.equal(format('COINS {m}', { n: 3 }), 'COINS {m}');
+});
+
+test('every translation keeps the placeholders its English original has', () => {
+  // A Turkish string that drops {n} would render without its number, and
+  // nothing else would catch it: the type system sees only "string".
+  const names = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+  for (const path of paths(en as unknown as Nested)) {
+    const english = valueAt(en as unknown as Nested, path);
+    const turkish = valueAt(tr as unknown as Nested, path);
+    assert.deepEqual(names(turkish), names(english), `${path} placeholders differ`);
+  }
 });

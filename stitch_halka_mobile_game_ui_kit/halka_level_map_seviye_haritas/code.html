@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@300;400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-background": "#e1e2ea", "surface-dim": "#111319", "background": "#111319", "inverse-surface": "#e1e2ea", "surface": "#111319", "inverse-primary": "#6d4ca6", "primary-fixed-dim": "#d4bbff", "on-primary-fixed": "#270058", "error-container": "#93000a", "secondary-fixed": "#79f7ea", "tertiary": "#ffb866", "outline": "#958e9c", "surface-container-lowest": "#0b0e13", "primary-fixed": "#ebdcff", "on-secondary-fixed": "#00201d", "surface-container-high": "#272a30", "primary-container": "#b794f4", "secondary-container": "#01a89d", "secondary-fixed-dim": "#5adace", "on-surface": "#e1e2ea", "tertiary-fixed-dim": "#ffb866", "tertiary-fixed": "#ffddba", "on-tertiary-container": "#573300", "on-error-container": "#ffdad6", "on-secondary-fixed-variant": "#00504a", "on-primary-fixed-variant": "#55338d", "on-tertiary": "#482900", "primary": "#d4bbff", "surface-variant": "#32353b", "secondary": "#5adace", "on-primary-container": "#492680", "error": "#ffb4ab", "inverse-on-surface": "#2e3036", "on-tertiary-fixed-variant": "#673d00", "on-error": "#690005", "surface-tint": "#d4bbff", "on-surface-variant": "#ccc3d2", "outline-variant": "#4a4551", "tertiary-container": "#dc9741", "surface-container-highest": "#32353b", "surface-container": "#1d2025", "on-tertiary-fixed": "#2b1700", "on-secondary-container": "#003531", "on-secondary": "#003733", "surface-container-low": "#191c21", "on-primary": "#3e1975", "surface-bright": "#36393f" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "margin": "1.25rem", "margin-mobile": "1rem", "space-md": "1rem", "space-lg": "1.5rem", "gutter": "1rem", "gutter-sm": "0.5rem", "space-xl": "2.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, fontFamily: { "display-lg-mobile": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "label-lg": ["JetBrains Mono"], "display-lg": ["Space Grotesk"], "body-lg": ["JetBrains Mono"], "headline-lg": ["Space Grotesk"], "body-md": ["JetBrains Mono"], "label-sm": ["JetBrains Mono"], "telemetry-num": ["Space Grotesk"] }, fontSize: { "display-lg-mobile": ["36px", { lineHeight: "40px", letterSpacing: "-0.03em", fontWeight: "300" }], "headline-md": ["22px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "400" }], "label-lg": ["12px", { lineHeight: "16px", letterSpacing: "0.14em", fontWeight: "500" }], "display-lg": ["48px", { lineHeight: "52px", letterSpacing: "-0.04em", fontWeight: "300" }], "body-lg": ["15px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "400" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "400" }], "body-md": ["13px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "400" }], "label-sm": ["10px", { lineHeight: "14px", letterSpacing: "0.18em", fontWeight: "500" }], "telemetry-num": ["32px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "300" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#0b0e13;color:#e1e2ea;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface-container-lowest font-body-md text-on-surface antialiased flex flex-col min-h-screen pt-safe pb-safe"><main class="flex flex-col relative w-full bg-surface-container-lowest flex-1"><div class="flex flex-col w-full relative select-none pb-24">
+<!-- TOP FIXED TELEMETRY HEADER / REGION INDICATOR -->
+<header class="sticky top-0 z-30 w-full bg-surface-container-lowest/95 backdrop-blur-none px-margin py-space-sm border-b border-[#1F2937]">
+<div class="flex flex-col gap-space-xs">
+<!-- Sector Navigator / Region Switcher -->
+<div class="flex items-center justify-between text-label-sm font-label-sm tracking-widest text-[#61728A]">
+<button class="flex items-center gap-1 active:text-primary transition-colors py-1">
+<span class="material-symbols-outlined text-[14px]">chevron_left</span>
+<span>BÖLGE 02</span>
+</button>
+<span class="tracking-widest text-[#E6EDF5] font-label-sm">BÖLGE 03 // REGION 03 · 80%</span>
+<button class="flex items-center gap-1 active:text-primary transition-colors py-1">
+<span>BÖLGE 04</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</div>
+<!-- Sector Subtitle -->
+<div class="flex items-baseline justify-between">
+<h1 class="font-headline-md text-[17px] leading-5 tracking-tight text-[#E6EDF5] font-light uppercase">
+          OPTİK REZONANS HATTI
+        </h1>
+<span class="font-label-sm text-[10px] text-[#61728A] tracking-widest uppercase">SYS.V.3.1</span>
+</div>
+<!-- Linear Micro Gauge (Completion 80%) -->
+<div class="w-full bg-[#1F2937] h-[2px] mt-1 relative overflow-hidden">
+<div class="bg-[#4FD1C5] h-full w-[80%] transition-all duration-500"></div>
+</div>
+</div>
+</header>
+<!-- MAIN SCROLLABLE VECTOR SCHEMATIC PATH -->
+<div class="relative w-full px-margin py-space-lg flex flex-col items-center">
+<!-- SYSTEM SCHEMATIC SVG BACKBONE -->
+<svg class="absolute top-0 left-0 w-full h-full pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="24" id="grid-ticks" patternunits="userSpaceOnUse" width="24">
+<line stroke="#1F2937" stroke-width="0.5" x1="12" x2="12" y1="10" y2="14"></line>
+<line stroke="#1F2937" stroke-width="0.5" x1="10" x2="14" y1="12" y2="12"></line>
+</pattern>
+</defs>
+<rect fill="url(#grid-ticks)" height="100%" opacity="0.3" width="100%"></rect>
+<!-- Central Calibration Conduit Path -->
+<!-- Connects Region 2 -> Nodes 20..27 -> Region 4 Preview -->
+<path d="M 180,60 L 180,120 L 140,180 L 140,240 L 220,310 L 220,380 L 170,450 L 170,530 L 230,600 L 230,680 L 180,750 L 180,830 L 130,900 L 130,980 L 180,1050 L 180,1130" fill="none" stroke="#1F2937" stroke-dasharray="3 3" stroke-width="1.5"></path>
+<!-- Calibrated Active Segment to node 24 -->
+<path d="M 180,60 L 180,120 L 140,180 L 140,240 L 220,310 L 220,380 L 170,450 L 170,530 L 230,600 L 230,680" fill="none" stroke="#4FD1C5" stroke-opacity="0.6" stroke-width="1.5"></path>
+</svg>
+<!-- CONTENT NODES CONTAINER -->
+<div class="w-full flex flex-col gap-10 relative z-10">
+<!-- PREVIOUS REGION BOUNDARY SEAL -->
+<div class="w-full flex flex-col items-center">
+<div class="px-3 py-1 bg-[#141A23] border border-[#1F2937] text-label-sm font-label-sm text-[#4FD1C5] tracking-widest text-[9px] uppercase">
+          BÖLGE 02: PRİZMA KORİDORU // TAMAMLANDI 100%
+        </div>
+</div>
+<!-- NODE 20 (MILESTONE / PRISM APEX COMPLETED) -->
+<div class="flex items-center justify-between w-full pl-4 pr-12">
+<div class="flex flex-col text-left">
+<span class="font-label-sm text-label-sm text-[#4FD1C5] tracking-widest uppercase">KİLİT TAŞI // MILESTONE</span>
+<span class="font-headline-md text-sm text-[#E6EDF5]">BÜYÜK REZONANS HALKASI</span>
+<div class="flex items-center gap-1 mt-1 text-[10px] text-[#4FD1C5]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]"></span>
+<span class="font-label-sm ml-1 text-[#61728A]">CAL. 99.8%</span>
+</div>
+</div>
+<button aria-label="Seviye 20" class="relative w-12 h-12 flex items-center justify-center bg-[#141A23] border border-[#4FD1C5] text-[#E6EDF5] active:scale-95 transition-transform">
+<div class="absolute inset-1 border border-[#4FD1C5]/40 border-dashed"></div>
+<span class="font-telemetry-num text-lg font-light">20</span>
+<div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-[#4FD1C5]"></div>
+</button>
+</div>
+<!-- NODE 21 (COMPLETED) -->
+<div class="flex items-center justify-center w-full relative">
+<div class="absolute left-6 flex flex-col">
+<span class="font-label-sm text-[9px] text-[#61728A] tracking-widest uppercase">OPTİK ALAN 01</span>
+<span class="font-body-md text-xs text-[#E6EDF5]">AÇISAL SENKRON</span>
+</div>
+<button aria-label="Seviye 21" class="w-9 h-9 flex items-center justify-center bg-[#4FD1C5] text-[#0B0E13] rounded-none active:scale-90 transition-transform relative">
+<span class="font-telemetry-num text-sm font-normal">21</span>
+<!-- Micro Accuracy Dots -->
+<div class="absolute -bottom-2 flex gap-0.5">
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+</div>
+</button>
+</div>
+<!-- NODE 22 (COMPLETED) -->
+<div class="flex items-center justify-center w-full relative pl-24">
+<button aria-label="Seviye 22" class="w-9 h-9 flex items-center justify-center bg-[#4FD1C5] text-[#0B0E13] active:scale-90 transition-transform relative">
+<span class="font-telemetry-num text-sm font-normal">22</span>
+<div class="absolute -bottom-2 flex gap-0.5">
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+<span class="w-1 h-1 bg-[#1F2937]"></span>
+</div>
+</button>
+<div class="ml-4 flex flex-col">
+<span class="font-label-sm text-[9px] text-[#61728A] tracking-widest uppercase">SEKTÖR İLERLEME</span>
+<span class="font-body-md text-xs text-[#E6EDF5]">2/3 FREKANS</span>
+</div>
+</div>
+<!-- NODE 23 (COMPLETED) -->
+<div class="flex items-center justify-center w-full relative pr-16">
+<div class="mr-4 flex flex-col text-right">
+<span class="font-label-sm text-[9px] text-[#4FD1C5] tracking-widest uppercase">SENKRONİZE</span>
+<span class="font-body-md text-xs text-[#E6EDF5]">KUTUP KIRILMASI</span>
+</div>
+<button aria-label="Seviye 23" class="w-9 h-9 flex items-center justify-center bg-[#4FD1C5] text-[#0B0E13] active:scale-90 transition-transform relative">
+<span class="font-telemetry-num text-sm font-normal">23</span>
+<div class="absolute -bottom-2 flex gap-0.5">
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+<span class="w-1 h-1 bg-[#4FD1C5]"></span>
+</div>
+</button>
+</div>
+<!-- NODE 24 (CURRENT ACTIVE RETICLE TARGET) -->
+<div class="flex items-center justify-center w-full relative py-3">
+<!-- Target Reticle & Node Center -->
+<div class="relative flex items-center justify-center">
+<!-- 12 O'Clock Precision Notch -->
+<div class="absolute -top-3 w-[2px] h-2 bg-[#F6AD55]"></div>
+<div class="absolute -bottom-3 w-[2px] h-2 bg-[#F6AD55]"></div>
+<div class="absolute -left-3 h-[2px] w-2 bg-[#F6AD55]"></div>
+<div class="absolute -right-3 h-[2px] w-2 bg-[#F6AD55]"></div>
+<!-- Outer Pulsing Hairline Ring -->
+<div class="w-14 h-14 rounded-full border border-[#F6AD55] flex items-center justify-center animate-pulse">
+<!-- Inner Structural Frame -->
+<button aria-label="Aktif Seviye 24" class="w-10 h-10 bg-[#141A23] border border-[#F6AD55] text-[#E6EDF5] flex items-center justify-center relative active:scale-95 transition-transform" id="active-target-btn">
+<span class="font-telemetry-num text-lg font-light text-[#F6AD55]">24</span>
+<span class="absolute top-0 right-0 w-1.5 h-1.5 bg-[#F6AD55]"></span>
+</button>
+</div>
+</div>
+<!-- Telemetry Callout Card for Level 24 -->
+<div class="absolute left-4 bg-[#141A23] border border-[#1F2937] p-2 flex flex-col min-w-[130px]">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#F6AD55] animate-ping"></span>
+<span class="font-label-sm text-[9px] text-[#F6AD55] tracking-widest uppercase">AKTİF HEDEF</span>
+</div>
+<span class="font-headline-md text-xs text-[#E6EDF5] mt-0.5">HALKA SENKRONİZASYONU</span>
+<span class="font-label-sm text-[8px] text-[#61728A] tracking-wider mt-0.5">3 HALKA · 1 PRİZMA</span>
+</div>
+</div>
+<!-- NODE 25 (LOCKED - UPCOMING PRISM MILESTONE TRIAL) -->
+<div class="flex items-center justify-center w-full relative pl-20">
+<div aria-label="Seviye 25 Kilitli" class="w-11 h-11 bg-[#141A23] border border-[#1F2937] flex items-center justify-center relative text-[#61728A]">
+<div class="absolute inset-1 border border-[#1F2937] border-dashed"></div>
+<span class="font-telemetry-num text-base font-light">25</span>
+<span class="material-symbols-outlined text-[14px] absolute -top-2 -right-2 text-[#61728A] bg-[#0B0E13] p-0.5">lock</span>
+</div>
+<div class="ml-4 flex flex-col">
+<span class="font-label-sm text-[9px] text-[#61728A] tracking-widest uppercase">DENEME // PRISM TRIAL</span>
+<span class="font-body-md text-xs text-[#61728A]">KIRILMA MERKEZİ</span>
+</div>
+</div>
+<!-- NODE 26 (LOCKED) -->
+<div class="flex items-center justify-center w-full relative pr-20">
+<div class="mr-4 flex flex-col text-right">
+<span class="font-label-sm text-[9px] text-[#61728A] tracking-widest uppercase">KİLİTLİ SEKTÖR</span>
+<span class="font-body-md text-xs text-[#61728A]">TERS SAPMA</span>
+</div>
+<div class="w-8 h-8 bg-[#0B0E13] border border-[#1F2937] flex items-center justify-center text-[#61728A]">
+<span class="font-telemetry-num text-xs">26</span>
+</div>
+</div>
+<!-- NODE 27 (LOCKED) -->
+<div class="flex items-center justify-center w-full relative">
+<div class="w-8 h-8 bg-[#0B0E13] border border-[#1F2937] flex items-center justify-center text-[#61728A]">
+<span class="font-telemetry-num text-xs">27</span>
+</div>
+</div>
+<!-- NODE 28 (LOCKED) -->
+<div class="flex items-center justify-center w-full relative pl-16">
+<div class="w-8 h-8 bg-[#0B0E13] border border-[#1F2937] flex items-center justify-center text-[#61728A]">
+<span class="font-telemetry-num text-xs">28</span>
+</div>
+<div class="ml-3 flex flex-col">
+<span class="font-label-sm text-[9px] text-[#61728A] tracking-widest uppercase">DERİN DALGA</span>
+</div>
+</div>
+<!-- UPCOMING REGION 04 SEAL (LOCKED THRESHOLD) -->
+<div class="w-full flex flex-col items-center mt-2 opacity-60">
+<div class="px-4 py-2 bg-[#141A23] border border-[#1F2937] flex flex-col items-center gap-1 text-center">
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-[#61728A] tracking-widest text-[9px] uppercase">
+<span class="material-symbols-outlined text-[13px]">lock</span>
+<span>BÖLGE 04: HARMONİK KİLİT // KİLİTLİ</span>
+</div>
+<span class="font-label-sm text-[8px] text-[#61728A]">GEREKSİNİM: BÖLGE 03 KALİBRASYON TAMAMLAMA</span>
+</div>
+</div>
+</div>
+</div>
+<!-- ERGONOMIC BOTTOM DECK (LOWER THUMB ARC 40% ZONE) -->
+<div class="fixed bottom-0 left-0 w-full bg-[#0B0E13]/95 border-t border-[#1F2937] px-margin py-space-sm z-40 flex flex-col gap-space-sm">
+<!-- PRIMARY LEVEL 24 ACTION DECK (Within immediate thumb reach) -->
+<button class="w-full py-3.5 px-4 bg-[#4FD1C5] text-[#0B0E13] flex items-center justify-between active:bg-[#79f7ea] transition-colors rounded-none">
+<div class="flex flex-col text-left">
+<span class="font-label-sm text-[10px] uppercase tracking-widest font-semibold">HIZLI BAŞLAT // QUICK PLAY</span>
+<span class="font-headline-md text-sm leading-tight tracking-tight uppercase">SEVİYE 24: KUTUP REZONANSI</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-xs bg-[#0B0E13]/10 px-2 py-0.5 tracking-wider">BAŞLA</span>
+<span class="material-symbols-outlined text-lg">play_arrow</span>
+</div>
+</button>
+<!-- SYSTEM INSTRUMENT BAR (TELEMETRY + NAVIGATION) -->
+<div class="grid grid-cols-3 gap-2 items-center">
+<!-- Currency / Calibration Cells Counter -->
+<div class="flex flex-col justify-center px-2 py-1.5 bg-[#141A23] border border-[#1F2937]">
+<span class="font-label-sm text-[8px] text-[#61728A] tracking-widest uppercase">JETON // COINS</span>
+<div class="flex items-center gap-1 text-[#E6EDF5]">
+<span class="material-symbols-outlined text-[13px] text-[#F6AD55]">album</span>
+<span class="font-telemetry-num text-sm tracking-tight font-light">1,450</span>
+</div>
+</div>
+<!-- Shop Trigger -->
+<button class="flex items-center justify-center gap-1.5 py-2 px-2 bg-transparent border border-[#1F2937] active:border-[#4FD1C5] active:text-[#4FD1C5] text-[#E6EDF5] transition-colors">
+<span class="material-symbols-outlined text-[16px] text-[#61728A]">token</span>
+<span class="font-label-sm text-[10px] tracking-widest uppercase">MAĞAZA</span>
+</button>
+<!-- Settings / Calibration Utility -->
+<button class="flex items-center justify-center gap-1.5 py-2 px-2 bg-transparent border border-[#1F2937] active:border-[#4FD1C5] active:text-[#4FD1C5] text-[#E6EDF5] transition-colors">
+<span class="material-symbols-outlined text-[16px] text-[#61728A]">tune</span>
+<span class="font-label-sm text-[10px] tracking-widest uppercase">AYARLAR</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  // Tactile micro-feedback for node selection
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(8);
+      }
+    });
+  });
+</script></main></body></html>
