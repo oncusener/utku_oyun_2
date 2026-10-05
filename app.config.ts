@@ -21,7 +21,7 @@ const env = (key: string, fallback: string): string => process.env[key] || fallb
 const config: ExpoConfig = {
   name: 'Halo',
   slug: 'halo',
-  version: '0.1.0',
+  version: '0.2.0',
   icon: './assets/icon.png',
   orientation: 'portrait',
   userInterfaceStyle: 'dark',
@@ -33,6 +33,7 @@ const config: ExpoConfig = {
   },
   ios: {
     supportsTablet: false,
+    buildNumber: '2',
     // com.halo.ring is already taken on Apple's side (App IDs are globally
     // unique), so iOS uses the developer's own namespace — matching the
     // registered App ID and the App Store Connect app (Apple ID 6813801713).

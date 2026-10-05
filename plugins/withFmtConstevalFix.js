@@ -1,11 +1,15 @@
 /**
- * withFmtConstevalFix — Expo config plugin.
+ * withFmtConstevalFix — Expo config plugin (two Xcode-26 build fixes).
  *
- * Xcode 26 / Apple clang 17 reject fmt 11.0.2's consteval format-string
+ * 1. Xcode 26 / Apple clang 17 reject fmt 11.0.2's consteval format-string
  * checking ("call to consteval function ... is not a constant expression").
  * React Native's RCT-Folly pins fmt to exactly 11.0.2, so we can't bump it;
  * instead we force fmt to use constexpr instead of consteval — identical at
  * runtime, only the compile-time format-string check is relaxed.
+ *
+ * 2. Xcode 26 rejects deployment targets below 15.0; some pods (GoogleMobileAds
+ * and UMP resource bundles) still ship 12.0, failing the archive. We raise every
+ * pod target to the project minimum (15.1) in the same post_install hook.
  *
  * The fix lives in the Podfile's post_install hook (patching fmt/base.h), so it
  * re-applies on every `pod install`. Because ios/ is gitignored (Expo CNG) and
@@ -28,6 +32,19 @@ const SNIPPET = `
         File.chmod(0644, fmt_base) # CocoaPods marks pod sources read-only (0444)
         File.write(fmt_base, patched)
         Pod::UI.puts '[withFmtConstevalFix] Patched fmt base.h: FMT_USE_CONSTEVAL -> 0'
+      end
+    end
+
+    # [withFmtConstevalFix] Xcode 26 rejects deployment targets below 15.0. A few
+    # pods (GoogleMobileAds / UMP resource bundles) still ship 12.0, which fails
+    # the archive with "** ARCHIVE FAILED **". Raise every pod target to the
+    # project minimum (15.1) so both the device archive and simulator builds pass.
+    installer.pods_project.targets.each do |pod_target|
+      pod_target.build_configurations.each do |pod_config|
+        current = (pod_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] || '0').to_f
+        if current < 15.1
+          pod_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        end
       end
     end
 `;

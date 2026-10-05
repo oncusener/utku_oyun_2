@@ -17,5 +17,11 @@
       "env": { "EXPO_PUBLIC_ENV": "production" }
     }
   },
-  "submit": { "production": {} }
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "6813801713"
+      }
+    }
+  }
 }
